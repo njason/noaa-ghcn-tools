@@ -48,7 +48,7 @@ with open('{0}-grow-seasons.csv'.format(os.path.splitext(args.input_file)[0]), '
         first_fall_frost = None
 
         for i, day_min_temp in enumerate(days):
-            # the 200th day of the year is in the middle of July, hottest time of the year anywhere is the continental USA
+            # the 200th day of the year is in the middle of July, hottest time of the year anywhere in the continental USA
             if i < 200 and int(day_min_temp) < 33:
                 last_spring_frost = i
             elif i >= 200 and int(day_min_temp) < 33:
