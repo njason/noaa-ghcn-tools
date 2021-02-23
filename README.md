@@ -13,3 +13,4 @@ Use the [NOAA Climate Data Online Search](https://www.ncdc.noaa.gov/cdo-web/sear
 ```
 $ python noaa_grow_seasons.py <path to CSV report file>
 ```
+A new CSV file will be created in the same location as the input file with `grow_seasons` at the end of the file name.

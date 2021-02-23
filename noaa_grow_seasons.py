@@ -1,5 +1,6 @@
 import argparse
 import csv
+import os
 from datetime import datetime
 
 parser = argparse.ArgumentParser('NOAA Grow Season Calculator')
@@ -32,19 +33,26 @@ with open(args.input_file) as csvfile:
         years[date.year].append(row['TMIN'])
 
 # output grow season length
-for year, days in years.items():
-    if year in incomplete_years:
-        continue
+with open('{0}-grow-seasons.csv'.format(os.path.splitext(args.input_file)[0]), 'w') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=['STATION', 'NAME', 'YEAR', 'SEASONDAYS'], quoting=csv.QUOTE_ALL)
+    writer.writeheader()
 
-    last_spring_frost = None
-    first_fall_frost = None
+    for year, days in years.items():
+        if year in incomplete_years:
+            continue
 
-    for i, day_min_temp in enumerate(days):
-        # the 200th day of the year is in the middle of July, hottest time of the year anywhere is the continental USA
-        if i < 200 and int(day_min_temp) < 33:
-            last_spring_frost = i
-        elif i >= 200 and int(day_min_temp) < 33:
-            first_fall_frost = i
-    
-    print(str(year) + ' ' + str(first_fall_frost - last_spring_frost))
+        if len(days) < 365:
+            continue
 
+        last_spring_frost = None
+        first_fall_frost = None
+
+        for i, day_min_temp in enumerate(days):
+            # the 200th day of the year is in the middle of July, hottest time of the year anywhere is the continental USA
+            if i < 200 and int(day_min_temp) < 33:
+                last_spring_frost = i
+            elif i >= 200 and int(day_min_temp) < 33:
+                first_fall_frost = i
+                break
+
+        writer.writerow({'STATION': station, 'NAME': name, 'YEAR': year, 'SEASONDAYS': first_fall_frost - last_spring_frost})
