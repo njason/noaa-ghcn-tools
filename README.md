@@ -19,7 +19,7 @@ A new CSV file will be created in the same location as the input file with `grow
 
 ### FTP
 
-For bigger datasets, use the FTP server. With an FTP client, open `ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/`. Find the station's ID with the web tool, then download the file with the station ID name in the `by_station` directory on the FTP server.
+For bigger datasets, use the FTP server. With an FTP client, open `ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/`. Find the station's ID in `/pub/data/ghcn/daily/ghcnd-stations.txt`, then download the file with the station ID name in the `by_station` directory on the FTP server.
 
 The FTP data file is in a different format than the web tool, use the `-f` flag to indicate the FTP format.
 
