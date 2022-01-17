@@ -43,8 +43,6 @@ def parseFtpOutput():
     def sortFunc(r):
         return r['date']
 
-    
-
     with open(args.input_file) as csvfile:
         reader = csv.DictReader(csvfile, ['station', 'date', 'type', 'value'])
         for row in reader:
