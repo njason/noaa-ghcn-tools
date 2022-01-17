@@ -1,6 +1,6 @@
-# NOAA Grow Season Calculator
+# NOAA Tools for NCDC GHCN (Global Historical Climatology Network)
 
-This script takes a CSV report from NOAA and exports a CSV containing the grow seasons for each year. Specifically, the amount of days between the last Spring and first Fall frosts.
+Collection of scripts for aggregating data from GHCNd.
 
 ## Get Data files
 
