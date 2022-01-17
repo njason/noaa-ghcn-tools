@@ -10,15 +10,13 @@ parser.add_argument('input_file', type=str, help='Input CSV file from NOAA repor
 args = parser.parse_args()
 
 station = None
-name = None
 years = {}
-incomplete_years = {}
 
 def cToF(c):
     return (c * 9/5) + 32
 
 def parseWebToolOutput():
-    global station, name, years, incomplete_years
+    global station, years
 
     # parse input file
     with open(args.input_file) as csvfile:
@@ -26,13 +24,11 @@ def parseWebToolOutput():
         for row in reader:
             if not station:
                 station = row['STATION']
-            if not name:
-                name = row['NAME']
 
             date = datetime.strptime(row['DATE'], '%Y-%m-%d')
 
             if row['TMIN'] == '':
-                incomplete_years[date.year] = None
+                continue
             
             if date.year not in years:
                 years[date.year] = []
@@ -41,7 +37,13 @@ def parseWebToolOutput():
 
 
 def parseFtpOutput():
-    global station, name, years, incomplete_years
+    global station, years
+
+    input = []
+    def sortFunc(r):
+        return r['date']
+
+    
 
     with open(args.input_file) as csvfile:
         reader = csv.DictReader(csvfile, ['station', 'date', 'type', 'value'])
@@ -49,13 +51,21 @@ def parseFtpOutput():
             if not station:
                 station = row['station']
 
-            date = datetime.strptime(row['date'], '%Y%m%d')
-            
-            if date.year not in years:
-                years[date.year] = []
-            
             if row['type'] == 'TMIN':
+                input.append(row)
+
+        input.sort(key=sortFunc)
+
+        for row in input:
+            if row['value'] != '':
+                date = datetime.strptime(row['date'], '%Y%m%d')
+                
+                if date.year not in years:
+                    years[date.year] = []
+
                 years[date.year].append(cToF(int(row['value']) / 10))
+            
+            
 
 if args.isftp:
     parseFtpOutput()
@@ -63,13 +73,11 @@ else:
     parseWebToolOutput()
 
 # output grow season length
-with open('{0}-grow-seasons.csv'.format(os.path.splitext(args.input_file)[0]), 'w') as csvfile:
-    writer = csv.DictWriter(csvfile, fieldnames=['STATION', 'NAME', 'YEAR', 'SEASONDAYS'], quoting=csv.QUOTE_ALL)
+with open('{0}-grow-seasons.csv'.format(os.path.splitext(args.input_file)[0]), 'w', newline='', encoding='utf-8') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=['STATION', 'YEAR', 'SEASONDAYS'], quoting=csv.QUOTE_ALL)
     writer.writeheader()
 
     for year, days in years.items():
-        if year in incomplete_years:
-            continue
 
         if len(days) < 365:
             continue
@@ -88,4 +96,4 @@ with open('{0}-grow-seasons.csv'.format(os.path.splitext(args.input_file)[0]), '
         if not last_spring_frost or not first_fall_frost:
             continue
 
-        writer.writerow({'STATION': station, 'NAME': name, 'YEAR': year, 'SEASONDAYS': first_fall_frost - last_spring_frost})
+        writer.writerow({'STATION': station, 'YEAR': year, 'SEASONDAYS': first_fall_frost - last_spring_frost})
